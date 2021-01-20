@@ -1,41 +1,48 @@
-console.log('hello there lovely people');
+/*
+How do you get an "as-you-type" feature in your front-end app?
+example: as you type a username into a signup form, it tells you if that username is taken
+1. addEventListener
+2. fetch()
+3. render
+*/
 
-function processResponse(response){
-    return response.json();
+async function main() {
+    const button = document.querySelector('[data-js-new-joke]');
+    button.addEventListener('click', async (event) => {
+        event.preventDefault();
+        const joke = await getJoke();
+        renderJoke(joke);
+    });
+}
+main();
+
+async function getJoke() {
+    // Show the joke on the page:
+    // 1. make the Request using fetch()
+    const jokePromise = fetch('https://icanhazdadjoke.com', {
+        headers: {
+            Accept: 'application/json'
+        }
+    });
+    const response = await jokePromise;
+    // 2. grab the .joke
+    const jokeData = await response.json();
+    // console.log(jokeData);
+    // console.log(jokeData.joke);
+    // 3. render it to the page
+    return jokeData.joke;
 }
 
-//Show the joke on the page:
-//1. make the request using fetch()
-fetch('https://icanhazdadjoke.com',{
-    headers:{
-        Accept: 'application/json'
-    }
-})
-.then(response => {
-    console.log(response);
-    // let parsedResp = Json.parse(response);
-    // console.log(parsedRsep);
-    const pendingData = response.json();
-    console.log(pendingData);
+async function renderJoke(joke) {
+    // async b/c we will await getJoke
+    // const joke = await getJoke();
 
-    return pendingData; // returns to the next .then()
-})// convert to Json
-.then(finisheddata =>{
-    console.log(finisheddata);
-    return finisheddata.joke;
-})
-.then(theJoke=>{
-    console.log(theJoke);
-})
-.catch(err => console.log(err))
+    // create the DOM element    
+    const p = document.createElement('p');
 
-//2. grab the .joke
-//3. render it to the page
+    // put the joke text into it
+    p.textContent = joke;
 
-//alternative to use .catch() is to pass a second callback to .then
-// fetch('https://icanhazdadjoke.com',{
-//     headers:{
-//         Accept: 'application/json'
-//     }
-// })
-// .then(response => response.json(), err => console.log(err))
+    // attach it to an existing DOM element
+    document.querySelector('[data-js-root]').appendChild(p);
+}
